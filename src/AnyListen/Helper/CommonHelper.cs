@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,7 +17,7 @@ namespace AnyListen.Helper
             MyLogger.Error(ex.ToString);
         }
 
-        public static string GetHtmlContent(string url, int userAgent = 0, Dictionary<string,string> headers = null)
+        public static string GetHtmlContent(string url, int userAgent = 0, Dictionary<string,string> headers = null, bool isDecode = true)
         {
             try
             {
@@ -26,19 +27,22 @@ namespace AnyListen.Helper
                 switch (userAgent)
                 {
                     case 1:
-                        myHttpWebRequest.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3");
+                        myHttpWebRequest.DefaultRequestHeaders.Add("UserAgent", "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3");
                         break;
                     case 2:
-                        myHttpWebRequest.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19");
+                        myHttpWebRequest.DefaultRequestHeaders.Add("UserAgent", "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19");
                         break;
                     case 3:
-                        myHttpWebRequest.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; IEMobile/10.0; ARM; Touch; NOKIA; Lumia 920)");
+                        myHttpWebRequest.DefaultRequestHeaders.Add("UserAgent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; IEMobile/10.0; ARM; Touch; NOKIA; Lumia 920)");
                         break;
                     case 4:
-                        myHttpWebRequest.DefaultRequestHeaders.Add("User-Agent", "NativeHost");
+                        myHttpWebRequest.DefaultRequestHeaders.Add("UserAgent", "NativeHost");
+                        break;
+                    case 5:
+                        myHttpWebRequest.DefaultRequestHeaders.Add("UserAgent", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/534.34 (KHTML, like Gecko) XMusic/2.0.2.1618 Safari/534.34");
                         break;
                     default:
-                        myHttpWebRequest.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36");
+                        myHttpWebRequest.DefaultRequestHeaders.Add("UserAgent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36");
                         break;
                 }
                 if (headers != null)
@@ -49,7 +53,7 @@ namespace AnyListen.Helper
                     }
                 }
                 var result = myHttpWebRequest.GetStringAsync(url).Result;
-                return result;
+                return isDecode ? WebUtility.HtmlDecode(result) : result;
             }
             catch (Exception ex)
             {
@@ -58,7 +62,7 @@ namespace AnyListen.Helper
             }
         }
 
-        public static string PostData(string url,Dictionary<string,string> data, int contentType = 0, int userAgent = 0, Dictionary<string, string> headers = null)
+        public static string PostData(string url,Dictionary<string,string> data, int contentType = 0, int userAgent = 0, Dictionary<string, string> headers = null, bool isDecode = true)
         {
             try
             {
@@ -94,7 +98,7 @@ namespace AnyListen.Helper
                 }
                 var response = myHttpWebRequest.PostAsync(url,new FormUrlEncodedContent(data)).Result;
                 var result = response.Content.ReadAsStringAsync().Result;
-                return result;
+                return isDecode ? WebUtility.HtmlDecode(result) : result;
             }
             catch (Exception ex)
             {
@@ -107,7 +111,7 @@ namespace AnyListen.Helper
         {
             var key = type + "_" + quality + "_" + id + "." + format;
             var md5 = Md5(key + "$$itwusun.com$$");
-            return "http://yourdomain/api/music/" + key + "?sign=" + md5;   //需要将yourdomain替换成IP或者域名
+            return "http://120.26.97.188/api/music/" + key + "?sign=" + md5;   //需要将yourdomain替换成IP或者域名
         }
 
         public static string Md5(string input)

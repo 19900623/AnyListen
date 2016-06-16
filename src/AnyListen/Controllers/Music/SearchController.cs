@@ -13,7 +13,7 @@ namespace AnyListen.Controllers.Music
         [HttpGet]
         public SearchResult Get()
         {
-            const string t = "wy";
+            const string t = "any";
             var k = Request.Query["k"];
             var p = Request.Query["p"];
             var s = Request.Query["s"];
@@ -38,7 +38,7 @@ namespace AnyListen.Controllers.Music
 
         // GET api/search/xm?key=XXXXX&sign=XXXX&p=XXX
         [HttpGet("{type}")]
-        public SearchResult Get(string t)
+        public SearchResult Get(string type)
         {
             var k = Request.Query["k"];
             var p = Request.Query["p"];
@@ -59,7 +59,7 @@ namespace AnyListen.Controllers.Music
             {
                 s = "30";
             }
-            return Search(t, k[0], p[0], s[0]);
+            return Search(type, k[0], p[0], s[0]);
         }
 
         private static SearchResult Search(string type, string key, string page, string size)
@@ -70,8 +70,14 @@ namespace AnyListen.Controllers.Music
                 case "wy":
                     music = new WyMusic();
                     break;
+                case "xm":
+                    music = new XmMusic();
+                    break;
+                case "tt":
+                    music = new TtMusic();
+                    break;
                 default:
-                    music = new WyMusic();
+                    music = new AnyMusic();
                     break;
             }
             return music.SongSearch(key, Convert.ToInt32(page), Convert.ToInt32(size));

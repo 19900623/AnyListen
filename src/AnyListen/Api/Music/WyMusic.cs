@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using AnyListen.Helper;
@@ -15,12 +14,13 @@ namespace AnyListen.Api.Music
     {
         #region 加密发送包
 
-        //此处为网易客户端用户Cookie，会员Cookie可以获取无损地址
+        //此处为默认的网易客户端用户Cookie，会员Cookie可以获取无损地址
+        //个人Cookie可在appsetting.json文件里面的UserConfig下的WyCookie处进行配置
         public static string WyNewCookie = "__remember_me=true; MUSIC_U=5f9d910d66cb2440037d1c68e6972ebb9f15308b56bfeaa4545d34fbabf71e0f36b9357ab7f474595690d369e01fbb9741049cea1c6bb9b6; __csrf=8ea789fbbf78b50e6b64b5ebbb786176; os=uwp; osver=10.0.10586.318; appver=1.2.1; deviceId=0e4f13d2d2ccbbf31806327bd4724043";
 
         private static string GetEncHtml(string url, string text)
         {
-            //加密参考 https://github.com/darknessomi/musicbox
+            //AES加密参数参考了 https://github.com/darknessomi/musicbox
             //该处使用固定密钥，简化操作，效果与随机密钥一致
             const string secKey = "a44e542eaac91dce";
             var pad = 16 - text.Length % 16;
@@ -61,7 +61,7 @@ namespace AnyListen.Api.Music
 
         #endregion
 
-        private static SearchResult Search(string key, int page, int size)
+        public static SearchResult Search(string key, int page, int size)
         {
             var text = "{\"s\":\"" + key + "\",\"type\":1,\"offset\":" + (page - 1) * size + ",\"limit\":" + size + ",\"total\":true}";
             var html = GetEncHtml("http://music.163.com/weapi/cloudsearch/get/web?csrf_token=", text);
@@ -77,7 +77,7 @@ namespace AnyListen.Api.Music
             if (string.IsNullOrEmpty(html) || html == "null")
             {
                 result.ErrorCode = 300;
-                result.ErrorMsg = "获取源代码失败";
+                result.ErrorMsg = "获取搜索结果信息失败";
                 return result;
             }
             try
@@ -98,8 +98,8 @@ namespace AnyListen.Api.Music
             catch (Exception ex)
             {
                 CommonHelper.AddLog(ex);
-                result.ErrorCode = 404;
-                result.ErrorMsg = "没有找到符合要求的歌曲";
+                result.ErrorCode = 500;
+                result.ErrorMsg = "解析歌曲时发生错误";
                 return result;
             }
         }
@@ -115,18 +115,18 @@ namespace AnyListen.Api.Music
                     var song = new SongResult
                     {
                         SongId = j["id"].ToString(),
-                        SongName = WebUtility.HtmlDecode(j["name"].ToString()),
-                        SongSubName = WebUtility.HtmlDecode(j["alia"].First?.ToString()),
+                        SongName = j["name"].ToString(),
+                        SongSubName = j["alia"].First?.ToString(),
                         SongLink = "http://music.163.com/#/song?id="+ j["id"],
 
                         ArtistId = j["ar"].First["id"].ToString(),
-                        ArtistName = WebUtility.HtmlDecode(ar).TrimEnd(';'),
+                        ArtistName = ar.TrimEnd(';'),
                         ArtistSubName = "",
 
                         AlbumId = j["al"]["id"].ToString(),
-                        AlbumName = WebUtility.HtmlDecode(j["al"]["name"].ToString()),
-                        AlbumSubName = WebUtility.HtmlDecode(j["al"]["alia"]?.First?.ToString()),
-                        AlbumArtist = WebUtility.HtmlDecode(j["ar"].First["name"].ToString()),
+                        AlbumName = j["al"]["name"].ToString(),
+                        AlbumSubName = j["al"]["alia"]?.First?.ToString(),
+                        AlbumArtist = j["ar"].First["name"].ToString(),
 
                         Length =CommonHelper.NumToTime((Convert.ToInt32(j["dt"].ToString()) / 1000).ToString()),
                         Size = "",
@@ -250,18 +250,18 @@ namespace AnyListen.Api.Music
                     var song = new SongResult
                     {
                         SongId = j["id"].ToString(),
-                        SongName = WebUtility.HtmlDecode(j["name"].ToString()),
-                        SongSubName = WebUtility.HtmlDecode(j["alia"].First?.ToString()),
+                        SongName = j["name"].ToString(),
+                        SongSubName = j["alia"].First?.ToString(),
                         SongLink = "http://music.163.com/#/song?id=" + j["id"],
 
                         ArtistId = j["ar"].First["id"].ToString(),
-                        ArtistName = WebUtility.HtmlDecode(ar).TrimEnd(';'),
+                        ArtistName = ar.TrimEnd(';'),
                         ArtistSubName = "",
 
                         AlbumId = j["al"]["id"].ToString(),
-                        AlbumName = WebUtility.HtmlDecode(j["al"]["name"].ToString()),
-                        AlbumSubName = WebUtility.HtmlDecode(j["al"]["alia"]?.First?.ToString()),
-                        AlbumArtist = WebUtility.HtmlDecode(j["ar"].First["name"].ToString()),
+                        AlbumName = j["al"]["name"].ToString(),
+                        AlbumSubName = j["al"]["alia"]?.First?.ToString(),
+                        AlbumArtist = j["ar"].First["name"].ToString(),
 
                         Length = CommonHelper.NumToTime((Convert.ToInt32(j["dt"].ToString()) / 1000).ToString()),
                         Size = "",
@@ -366,7 +366,7 @@ namespace AnyListen.Api.Music
             if (string.IsNullOrEmpty(html) || html == "null")
             {
                 result.ErrorCode = 300;
-                result.ErrorMsg = "获取源代码失败";
+                result.ErrorMsg = "获取专辑信息失败";
                 return result;
             }
             try
@@ -415,7 +415,7 @@ namespace AnyListen.Api.Music
             if (string.IsNullOrEmpty(html) || html == "null")
             {
                 result.ErrorCode = 300;
-                result.ErrorMsg = "获取源代码失败";
+                result.ErrorMsg = "获取艺术家信息失败";
                 return result;
             }
             try
@@ -465,7 +465,7 @@ namespace AnyListen.Api.Music
             if (string.IsNullOrEmpty(html) || html == "null")
             {
                 result.ErrorCode = 300;
-                result.ErrorMsg = "获取源代码失败";
+                result.ErrorMsg = "获取歌单信息失败";
                 return result;
             }
             try
@@ -797,7 +797,7 @@ namespace AnyListen.Api.Music
             return SearchCollect(id, page, size);
         }
 
-        public SongResult GetSingleSong(string id, bool isDetials = false)
+        public SongResult GetSingleSong(string id)
         {
             return SearchSingle(id);
         }

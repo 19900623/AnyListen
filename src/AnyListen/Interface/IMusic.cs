@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AnyListen.Model;
+﻿using AnyListen.Model;
 
 namespace AnyListen.Interface
 {
@@ -13,7 +12,7 @@ namespace AnyListen.Interface
 
         CollectResult CollectSearch(string id, int page, int size);
 
-        SongResult GetSingleSong(string id, bool isDetials = false);
+        SongResult GetSingleSong(string id);
 
         string GetSongUrl(string id, string quality, string format);
     }
