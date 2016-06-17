@@ -161,9 +161,9 @@ namespace AnyListen.Api.Music
                     }
                     if (j["llList"] != null && j["llList"].ToString() != "null" && j["llList"].ToString() != "[]")
                     {
-                        song.BitRate = "无损";
                         foreach (JToken wsJToken in j["llList"])
                         {
+                            song.BitRate = "无损";
                             switch (wsJToken["suffix"].ToString())
                             {
                                 case "wav":
@@ -173,6 +173,9 @@ namespace AnyListen.Api.Music
                                     song.ApeUrl = wsJToken["url"].ToString();
                                     break;
                                 case "flac":
+                                    song.FlacUrl = wsJToken["url"].ToString();
+                                    break;
+                                default:
                                     song.FlacUrl = wsJToken["url"].ToString();
                                     break;
                             }
