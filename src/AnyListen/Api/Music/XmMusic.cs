@@ -212,7 +212,7 @@ namespace AnyListen.Api.Music
 
                             Length = CommonHelper.NumToTime(j["length"].ToString()),
                             Size = "",
-                            BitRate = "320K",
+                            BitRate = "128K",
 
                             FlacUrl = "",
                             ApeUrl = "",
@@ -240,6 +240,7 @@ namespace AnyListen.Api.Music
                         };
                         if (j["purview"] != null)
                         {
+                            song.BitRate = "320K";
                             song.SqUrl = song.HqUrl = j["purview"]["filePath"]?.ToString();
                         }
                         if (!string.IsNullOrEmpty(song.MvId))
@@ -249,6 +250,12 @@ namespace AnyListen.Api.Music
                                 song.MvHdUrl = CommonHelper.GetSongUrl("xm", "hd", song.SongId, "mp4");
                                 song.MvLdUrl = CommonHelper.GetSongUrl("xm", "ld", song.SongId, "mp4");
                             }
+                        }
+                        if (!string.IsNullOrEmpty(j["ttpodId"]?.ToString()))
+                        {
+                            song.BitRate = "320K";
+                            song.HqUrl = CommonHelper.GetSongUrl("tt", "192", j["ttpodId"].ToString(), "mp3");
+                            song.SqUrl = CommonHelper.GetSongUrl("tt", "320", j["ttpodId"].ToString(), "mp3");
                         }
                         list.Add(song);
                     }
