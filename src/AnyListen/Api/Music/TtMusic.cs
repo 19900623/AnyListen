@@ -262,7 +262,7 @@ namespace AnyListen.Api.Music
             {
                 ErrorCode = 200,
                 ErrorMsg = "OK",
-                ArtistLink = "http://music.163.com/#/artist?id=" + id,
+                ArtistLink = "",
                 Page = page,
                 Songs = new List<SongResult>()
             };

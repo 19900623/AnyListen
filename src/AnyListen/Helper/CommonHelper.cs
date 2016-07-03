@@ -49,7 +49,16 @@ namespace AnyListen.Helper
                         myHttpWebRequest.DefaultRequestHeaders.Add(k.Key, k.Value);
                     }
                 }
-                var result = myHttpWebRequest.GetStringAsync(url).Result;
+                string result;
+                try
+                {
+                    result = myHttpWebRequest.GetStringAsync(url).Result;
+                }
+                catch (Exception ex)
+                {
+                    AddLog(ex);
+                    result = Encoding.UTF8.GetString(myHttpWebRequest.GetByteArrayAsync(url).Result);
+                }
                 return isDecode ? WebUtility.HtmlDecode(result) : result;
             }
             catch (Exception ex)

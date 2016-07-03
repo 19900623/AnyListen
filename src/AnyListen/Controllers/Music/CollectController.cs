@@ -51,6 +51,9 @@ namespace AnyListen.Controllers.Music
                 case "tt":
                     music = new TtMusic();
                     break;
+                case "qq":
+                    music = new TxMusic();
+                    break;
                 default:
                     return null;
             }
