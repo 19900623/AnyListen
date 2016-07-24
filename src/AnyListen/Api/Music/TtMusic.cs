@@ -277,6 +277,8 @@ namespace AnyListen.Api.Music
                 var json = JObject.Parse(html);
                 if (json["totalCount"].ToString() == "0")
                 {
+                    result.ErrorCode = 404;
+                    result.ErrorMsg = "请检查艺术家ID是否正确";
                     return null;
                 }
                 var datas = json["data"];

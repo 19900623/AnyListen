@@ -66,7 +66,18 @@ namespace AnyListen.Api.Music
                     }
                 }
             }));
-            Task.WaitAll(t1, t2, t3, t4);
+            var t5 = Task.Factory.StartNew((() =>
+            {
+                var r1 = BdMusic.Search(key, page, size);
+                if (r1?.Songs != null && r1.Songs.Count > 0)
+                {
+                    lock (result)
+                    {
+                        result.Songs.AddRange(r1.Songs);
+                    }
+                }
+            }));
+            Task.WaitAll(t1, t2, t3, t4, t5);
             if (result.Songs.Count > 0) return result;
             result.ErrorCode = 404;
             result.ErrorMsg = "没有找到符合要求的歌曲";

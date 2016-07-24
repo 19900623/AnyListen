@@ -226,7 +226,7 @@ namespace AnyListen.Api.Music
             var url =
                 "http://i.y.qq.com/v8/fcg-bin/fcg_v8_singer_track_cp.fcg?order=listen&begin=" + (page - 1)*size +
                 "&num=" + size + "&"+str+"&g_tk=5381&uin=0&format=jsonp&inCharset=utf-8&outCharset=utf-8&notice=0&platform=h5page&needNewCode=1&from=h5";
-            var html = CommonHelper.GetHtmlContent(url.Replace("callback(", "").TrimEnd(')'));
+            var html = CommonHelper.GetHtmlContent(url).Replace("callback(", "").TrimEnd(')');
             var result = new ArtistResult
             {
                 ErrorCode = 200,
@@ -246,6 +246,8 @@ namespace AnyListen.Api.Music
                 var json = JObject.Parse(html);
                 if (json["message"].ToString() != "succ")
                 {
+                    result.ErrorCode = 404;
+                    result.ErrorMsg = "请检查艺术家ID是否正确";
                     return null;
                 }
                 var datas = json["data"]["list"];
@@ -433,7 +435,7 @@ namespace AnyListen.Api.Music
 
         private static string GetMvUrl(string id, string quality)
         {
-            //此处使用腾讯视频会员可获取1080P资源
+            //此处使用腾讯视频会员Cookie可获取1080P资源
             var html =
                 CommonHelper.GetHtmlContent(
                     "http://vv.video.qq.com/getinfo?vid=" + id + "&platform=11&charge=1&otype=json");
@@ -462,11 +464,8 @@ namespace AnyListen.Api.Music
                     case 3:
                         info = dic["hd"];
                         break;
-                    case 2:
-                        info = dic["mp4"];
-                        break;
                     default:
-                        info = dic["sd"];
+                        info = dic["mp4"];
                         break;
                 }
             }
@@ -480,11 +479,8 @@ namespace AnyListen.Api.Music
                     case 4:
                         info = dic["hd"];
                         break;
-                    case 3:
-                        info = dic["mp4"];
-                        break;
                     default:
-                        info = dic["sd"];
+                        info = dic["mp4"];
                         break;
                 }
             }
