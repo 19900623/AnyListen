@@ -1,4 +1,6 @@
-﻿using AnyListen.Api.Music;
+﻿using System.Text;
+using AnyListen.Api.Music;
+using AnyListen.Helper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,13 +16,13 @@ namespace AnyListen
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+                .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
 
             if (env.IsEnvironment("Development"))
             {
                 // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
-                builder.AddApplicationInsightsSettings(developerMode: true);
+                builder.AddApplicationInsightsSettings(true);
             }
 
             builder.AddEnvironmentVariables();
@@ -34,25 +36,20 @@ namespace AnyListen
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
-
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            //此处屏蔽系统Log，有助于提高搜索速度
-            //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            //loggerFactory.AddDebug();
-            loggerFactory.AddNLog();
-
-            InitUserCfg();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            loggerFactory.AddConsole(LogLevel.Warning).AddNLog();
 
             app.UseApplicationInsightsRequestTelemetry();
-
             app.UseApplicationInsightsExceptionTelemetry();
-
             app.UseMvc();
+
+            InitUserCfg();
         }
 
         private void InitUserCfg()
@@ -62,6 +59,18 @@ namespace AnyListen
             if (!string.IsNullOrEmpty(wyCookie))
             {
                 WyMusic.WyNewCookie = wyCookie;
+            }
+
+            var ipAddr = userCfg["IpAddress"];
+            if (!string.IsNullOrEmpty(ipAddr))
+            {
+                CommonHelper.IpAddr = ipAddr;
+            }
+
+            var signKey = userCfg["SignKey"];
+            if (!string.IsNullOrEmpty(signKey))
+            {
+                CommonHelper.SignKey = signKey;
             }
         }
     }

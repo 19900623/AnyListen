@@ -10,7 +10,7 @@ namespace AnyListen
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseUrls("http://*:80")
+                .UseUrls("http://localhost:1025")
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();

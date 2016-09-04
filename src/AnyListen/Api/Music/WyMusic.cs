@@ -799,12 +799,12 @@ namespace AnyListen.Api.Music
 
         public SongResult GetSingleSong(string id)
         {
-            return SearchSingle(id);
+            return SearchSingle(id);  
         }
 
         public string GetSongUrl(string id, string quality, string format)
         {
-            return GetUrl(id,quality,format);
+            return GetUrl(id, quality, format);
         }
     }
 }

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AnyListen.Api.Music
 {
-    public class TxMusic:IMusic
+    public class TxMusic : IMusic
     {
         public static SearchResult Search(string key, int page, int size)
         {
@@ -334,8 +334,11 @@ namespace AnyListen.Api.Music
             {
                 str = "songid=" + id;
             }
-            var url = "http://i.y.qq.com/v8/playsong.html?" + str;
-            var html = CommonHelper.GetHtmlContent(url, 1);
+            var url = "http://c.y.qq.com/v8/playsong.html?" + str;
+            var html = CommonHelper.GetHtmlContent(url, 2,new Dictionary<string, string>
+            {
+                {"X-Requested-With","com.android.browser" }
+            });
             if (string.IsNullOrEmpty(html))
             {
                 return null;
@@ -489,7 +492,7 @@ namespace AnyListen.Api.Music
             return json["vl"]["vi"].First["ul"]["ui"].First["url"] + fn + "?vkey=" + vkey;
         }
 
-        public static string GetVkey(int id, string videoId)
+        private static string GetVkey(int id, string videoId)
         {
             var fn = videoId + ".p" + (Convert.ToInt32(id) - 10000) + ".1.mp4";
             var url = "http://vv.video.qq.com/getkey?format=" + id + "&otype=json&vid=" + videoId +

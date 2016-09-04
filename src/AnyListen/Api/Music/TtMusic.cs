@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AnyListen.Api.Music
 {
-    public class TtMusic:IMusic
+    public class TtMusic : IMusic
     {
         public static SearchResult Search(string key, int page, int size)
         {
@@ -262,7 +262,7 @@ namespace AnyListen.Api.Music
             {
                 ErrorCode = 200,
                 ErrorMsg = "OK",
-                ArtistLink = "",
+                ArtistLink = "http://music.163.com/#/artist?id=" + id,
                 Page = page,
                 Songs = new List<SongResult>()
             };
@@ -431,36 +431,6 @@ namespace AnyListen.Api.Music
             return song.LqUrl;
         }
 
-        public SearchResult SongSearch(string key, int page, int size)
-        {
-            return Search(key, page, size);
-        }
-
-        public AlbumResult AlbumSearch(string id)
-        {
-            return SearchAlbum(id);
-        }
-
-        public ArtistResult ArtistSearch(string id, int page, int size)
-        {
-            return SearchArtist(id, page, size);
-        }
-
-        public CollectResult CollectSearch(string id, int page, int size)
-        {
-            return SearchCollect(id);
-        }
-
-        public SongResult GetSingleSong(string id)
-        {
-            return SearchSong(id);
-        }
-
-        public string GetSongUrl(string id, string quality, string format)
-        {
-            return GetUrl(id, quality, format);
-        }
-
         /// <summary>
         /// 根据艺术家和歌名得到歌曲信息
         /// 用于获取虾米付费歌曲
@@ -510,5 +480,34 @@ namespace AnyListen.Api.Music
             return song;
         }
 
+        public SearchResult SongSearch(string key, int page, int size)
+        {
+            return Search(key, page, size);
+        }
+
+        public AlbumResult AlbumSearch(string id)
+        {
+            return SearchAlbum(id);
+        }
+
+        public ArtistResult ArtistSearch(string id, int page, int size)
+        {
+            return SearchArtist(id, page, size);
+        }
+
+        public CollectResult CollectSearch(string id, int page, int size)
+        {
+            return SearchCollect(id);
+        }
+
+        public SongResult GetSingleSong(string id)
+        {
+            return SearchSong(id);
+        }
+
+        public string GetSongUrl(string id, string quality, string format)
+        {
+            return GetUrl(id, quality, format);
+        }
     }
 }

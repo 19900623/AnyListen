@@ -1,27 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using NLog;
+using NLog.Extensions.Logging;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace AnyListen.Helper
 {
     public class CommonHelper
     {
-        private static readonly Logger MyLogger = LogManager.GetLogger("WebError");
+        public static string IpAddr = "127.0.0.1";
+        public static string SignKey = "$$itwusun.com$$";
+        private static readonly ILogger Logger = new LoggerFactory().AddConsole(LogLevel.Warning).AddNLog().CreateLogger("WebError");
 
         public static void AddLog(Exception ex)
         {
-            MyLogger.Error(ex.ToString);
+            Logger.LogError(ex.ToString());
         }
 
         public static string GetHtmlContent(string url, int userAgent = 0, Dictionary<string,string> headers = null, bool isDecode = true)
         {
             try
             {
-                var myHttpWebRequest = new HttpClient { Timeout = new TimeSpan(0, 0, 5) };
+                var myHttpWebRequest = new HttpClient { Timeout = new TimeSpan(0, 0, 10) };
                 myHttpWebRequest.DefaultRequestHeaders.Add("Method", "GET");
                 myHttpWebRequest.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
                 switch (userAgent)
@@ -49,16 +58,7 @@ namespace AnyListen.Helper
                         myHttpWebRequest.DefaultRequestHeaders.Add(k.Key, k.Value);
                     }
                 }
-                string result;
-                try
-                {
-                    result = myHttpWebRequest.GetStringAsync(url).Result;
-                }
-                catch (Exception ex)
-                {
-                    AddLog(ex);
-                    result = Encoding.UTF8.GetString(myHttpWebRequest.GetByteArrayAsync(url).Result);
-                }
+                var result = myHttpWebRequest.GetStringAsync(url).Result;
                 return isDecode ? WebUtility.HtmlDecode(result) : result;
             }
             catch (Exception ex)
@@ -102,7 +102,9 @@ namespace AnyListen.Helper
                         myHttpWebRequest.DefaultRequestHeaders.Add(k.Key, k.Value);
                     }
                 }
-                var response = myHttpWebRequest.PostAsync(url,new FormUrlEncodedContent(data)).Result;
+                var response = contentType == 0
+                    ? myHttpWebRequest.PostAsync(url, new FormUrlEncodedContent(data)).Result
+                    : myHttpWebRequest.PostAsync(url, new StringContent(data[data.Keys.First()], Encoding.UTF8)).Result;
                 var result = response.Content.ReadAsStringAsync().Result;
                 return isDecode ? WebUtility.HtmlDecode(result) : result;
             }
@@ -116,8 +118,8 @@ namespace AnyListen.Helper
         public static string GetSongUrl(string type, string quality, string id, string format)
         {
             var key = type + "_" + quality + "_" + id + "." + format;
-            var md5 = Md5(key + "$$itwusun.com$$");
-            return "http://120.26.97.188/api/music/" + key + "?sign=" + md5;   //需要将yourdomain替换成IP或者域名
+            var md5 = Md5(key + SignKey);
+            return "http://"+ IpAddr + "/music/ymusic/" + key + "?sign=" + md5;   //需要将yourdomain替换成IP或者域名
         }
 
         public static string Md5(string input)
@@ -165,6 +167,17 @@ namespace AnyListen.Helper
         {
             var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return start.AddSeconds(timestamp);
+        }
+
+        public static string UnicodeToString(string input)
+        {
+            var matches = Regex.Matches(input, @"\\u([0-9a-f]{4})");
+            foreach (Match match in matches)
+            {
+                var str = (char)int.Parse(match.Groups[1].Value, NumberStyles.HexNumber);
+                input = input.Replace(match.Value, str.ToString());
+            }
+            return input;
         }
 
         public static string GetContentType(string fileType)

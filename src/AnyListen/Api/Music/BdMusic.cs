@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using AnyListen.Helper;
 using AnyListen.Interface;
@@ -10,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AnyListen.Api.Music
 {
-    public class BdMusic:IMusic
+    public class BdMusic : IMusic
     {
         public static SearchResult Search(string key, int page, int size)
         {
@@ -614,6 +613,83 @@ namespace AnyListen.Api.Music
             return json["data"]["songList"].First["songLink"].ToString();
         }
 
+        #region 爱奇艺解码
+
+        private static string GetQiyLink(string param1)
+        {
+            var loc2 = "";
+            var loc3 = param1.Split('-');
+            var loc4 = loc3.Length;
+            var loc5 = loc4 - 1;
+            while (loc5 >= 0)
+            {
+                var loc6 = GetVrsxorCode(Convert.ToUInt32(loc3[loc4 - loc5 - 1], 16), (uint)loc5);
+                loc2 = Convert.ToChar(loc6) + loc2;
+                loc5--;
+            }
+            return loc2;
+        }
+
+        private static uint GetVrsxorCode(uint param1, uint param2)
+        {
+            var loc3 = (int)(param2 % 3);
+            if (loc3 == 1)
+            {
+                return param1 ^ 121;
+            }
+            if (loc3 == 2)
+            {
+                return param1 ^ 72;
+            }
+            return param1 ^ 103;
+        }
+
+        //private static string AiqiyiDecoder(byte[] param1)
+        //{
+        //    var loc3 = param1.Length;
+        //    const int loc5 = 20110218;
+        //    const int loc6 = loc5 % 100;
+        //    var loc7 = loc3 % 4;
+        //    var loc2 = new byte[loc3 + loc7];
+        //    var loc4 = 0;
+        //    while (loc4 + 4 <= loc3)
+        //    {
+        //        var temp = param1[loc4] << 24 | param1[loc4 + 1] << 16 | param1[loc4 + 2] << 8 |
+        //                   param1[loc4 + 3];
+        //        var loc8 = temp < 0 ? Convert.ToUInt32(UInt32.MaxValue + temp + 1) : Convert.ToUInt32(temp);
+        //        loc8 = loc8 ^ Convert.ToUInt32(loc5);
+        //        loc8 = rotate_right(loc8, loc6);
+        //        loc2[loc4] = Convert.ToByte((loc8 & 4278190080) >> 24);
+        //        loc2[loc4 + 1] = Convert.ToByte((loc8 & 16711680) >> 16);
+        //        loc2[loc4 + 2] = Convert.ToByte((loc8 & 65280) >> 8);
+        //        loc2[loc4 + 3] = Convert.ToByte(loc8 & 255);
+        //        loc4 = loc4 + 4;
+        //    }
+        //    loc4 = 0;
+        //    while (loc4 < loc7)
+        //    {
+        //        loc2[loc3 - loc7 - 1 + loc4] = param1[loc3 - loc7 - 1 + loc4];
+        //        loc4++;
+        //    }
+        //    return Encoding.UTF8.GetString(loc2);
+        //}
+
+        //private static uint rotate_right(uint param1, int param2)
+        //{
+        //    var loc4 = 0;
+        //    while (loc4 < param2)
+        //    {
+        //        var loc3 = param1 & 1;
+        //        param1 = param1 >> 1;
+        //        loc3 = loc3 << 31;
+        //        param1 = param1 + loc3;
+        //        loc4++;
+        //    }
+        //    return param1;
+        //}
+
+        #endregion
+
         public SearchResult SongSearch(string key, int page, int size)
         {
             return Search(key, page, size);
@@ -643,82 +719,5 @@ namespace AnyListen.Api.Music
         {
             return GetUrl(id, quality, format);
         }
-
-        #region 爱奇艺解码
-
-        public static string GetQiyLink(string param1)
-        {
-            var loc2 = "";
-            var loc3 = param1.Split('-');
-            var loc4 = loc3.Length;
-            var loc5 = loc4 - 1;
-            while (loc5 >= 0)
-            {
-                var loc6 = GetVrsxorCode(Convert.ToUInt32(loc3[loc4 - loc5 - 1], 16), (uint)loc5);
-                loc2 = Convert.ToChar(loc6) + loc2;
-                loc5--;
-            }
-            return loc2;
-        }
-
-        private static uint GetVrsxorCode(uint param1, uint param2)
-        {
-            var loc3 = (int)(param2 % 3);
-            if (loc3 == 1)
-            {
-                return param1 ^ 121;
-            }
-            if (loc3 == 2)
-            {
-                return param1 ^ 72;
-            }
-            return param1 ^ 103;
-        }
-
-        public static string AiqiyiDecoder(byte[] param1)
-        {
-            var loc3 = param1.Length;
-            const int loc5 = 20110218;
-            const int loc6 = loc5 % 100;
-            var loc7 = loc3 % 4;
-            var loc2 = new byte[loc3 + loc7];
-            var loc4 = 0;
-            while (loc4 + 4 <= loc3)
-            {
-                var temp = param1[loc4] << 24 | param1[loc4 + 1] << 16 | param1[loc4 + 2] << 8 |
-                           param1[loc4 + 3];
-                var loc8 = temp < 0 ? Convert.ToUInt32(UInt32.MaxValue + temp + 1) : Convert.ToUInt32(temp);
-                loc8 = loc8 ^ Convert.ToUInt32(loc5);
-                loc8 = rotate_right(loc8, loc6);
-                loc2[loc4] = Convert.ToByte((loc8 & 4278190080) >> 24);
-                loc2[loc4 + 1] = Convert.ToByte((loc8 & 16711680) >> 16);
-                loc2[loc4 + 2] = Convert.ToByte((loc8 & 65280) >> 8);
-                loc2[loc4 + 3] = Convert.ToByte(loc8 & 255);
-                loc4 = loc4 + 4;
-            }
-            loc4 = 0;
-            while (loc4 < loc7)
-            {
-                loc2[loc3 - loc7 - 1 + loc4] = param1[loc3 - loc7 - 1 + loc4];
-                loc4++;
-            }
-            return Encoding.UTF8.GetString(loc2);
-        }
-
-        private static uint rotate_right(uint param1, int param2)
-        {
-            var loc4 = 0;
-            while (loc4 < param2)
-            {
-                var loc3 = param1 & 1;
-                param1 = param1 >> 1;
-                loc3 = loc3 << 31;
-                param1 = param1 + loc3;
-                loc4++;
-            }
-            return param1;
-        }
-
-        #endregion
     }
 }

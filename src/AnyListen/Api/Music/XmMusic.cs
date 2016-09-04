@@ -10,9 +10,8 @@ using Newtonsoft.Json.Linq;
 
 namespace AnyListen.Api.Music
 {
-    public class XmMusic : IMusic
+    public class XmMusic: IMusic
     {
-
         //该API包含的歌曲信息十分全面，但是无法获取搜索结果总数目以及无法指定单页数量
         //附带另一个搜索API：http://api.xiami.com/web?v=2.0&app_key=1&key=hello&page=1&limit=30&r=search/songs
         //该API需要指定Refer：http://m.xiami.com/
