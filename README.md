@@ -14,13 +14,13 @@
 2016-07-04  新增腾讯音乐<br>
 2016-07-24  新增百度音乐<br>
 2016-09-04  新增酷狗、酷我解析；更新框架<br>
+2016-09-06  修正QQ单曲解析，咪咕以及电信爱音乐由于曲库数量太少，不再添加；停止更新<br>
 
 # 其他说明：
-演示地址：http://120.26.97.188/api/search?k=Hello <br>
-演示地址服务器环境为CentOS 7，具体配置可参考：[CnetOS环境配置](http://www.cnblogs.com/learn-dotnet/p/5519871.html) [发布说明](http://www.cnblogs.com/linezero/p/5475246.html) <br>
+CentOS 7.0 具体配置可参考：[CnetOS环境配置](http://www.cnblogs.com/learn-dotnet/p/5519871.html) [发布说明](http://www.cnblogs.com/linezero/p/5475246.html) <br>
 
 #后记
 * 欢迎关注我的微博：[新浪微博](http://weibo.com/shelher)<br>
-* 欢迎收藏我的个人网站，喜欢纯音乐的可以收藏一下啦 :blush: [雅音FM](http://itwusun.com)<br>
+* 欢迎收藏我的个人网站，喜欢纯音乐的可以收藏一下 :blush: [雅音FM](http://itwusun.com)<br>
 
 

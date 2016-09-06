@@ -1,6 +1,5 @@
 ﻿using AnyListen.Api.Music;
 using AnyListen.Interface;
-using AnyListen.Model;
 
 namespace AnyListen.Service
 {

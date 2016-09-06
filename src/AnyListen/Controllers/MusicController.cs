@@ -1,4 +1,5 @@
-﻿using AnyListen.Model;
+﻿using AnyListen.Helper;
+using AnyListen.Model;
 using AnyListen.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -120,9 +121,24 @@ namespace AnyListen.Controllers
             return MusicService.GetMusic(t).CollectSearch(id, p, s);
         }
 
-        [HttpGet("ymusic/{path}")]
-        public void Get(string path)
+        [HttpGet("song")]
+        public SongResult SongSearch([FromQuery]string t, [FromQuery]string id)
         {
+            if (string.IsNullOrEmpty(t) || string.IsNullOrEmpty(id))
+            {
+                return null;
+            }
+            return MusicService.GetMusic(t).GetSingleSong(id);
+        }
+
+        [HttpGet("ymusic/{path}")]
+        public void Get(string path, [FromQuery]string sign)
+        {
+            if (CommonHelper.Md5(path+CommonHelper.SignKey) != sign)
+            {
+                Response.StatusCode = 403;
+                return;
+            }
             if (string.IsNullOrEmpty(path))
             {
                 Response.StatusCode = 403;

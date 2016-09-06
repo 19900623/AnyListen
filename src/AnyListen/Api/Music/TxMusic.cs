@@ -150,7 +150,7 @@ namespace AnyListen.Api.Music
             return list;
         }
 
-        private AlbumResult SearchAlbum(string id)
+        private static AlbumResult SearchAlbum(string id)
         {
             var result = new AlbumResult
             {
@@ -216,7 +216,7 @@ namespace AnyListen.Api.Music
             }
         }
 
-        private ArtistResult SearchArtist(string id, int page, int size)
+        private static ArtistResult SearchArtist(string id, int page, int size)
         {
             var str = "singermid=" + id;
             if (Regex.IsMatch(id, @"^\d+$"))
@@ -329,34 +329,22 @@ namespace AnyListen.Api.Music
 
         private static SongResult SearchSong(string id)
         {
-            var str = "songmid=" + id;
-            if (Regex.IsMatch(id, @"^\d+$"))
-            {
-                str = "songid=" + id;
-            }
-            var url = "http://c.y.qq.com/v8/playsong.html?" + str;
-            var html = CommonHelper.GetHtmlContent(url, 2,new Dictionary<string, string>
-            {
-                {"X-Requested-With","com.android.browser" }
-            });
-            if (string.IsNullOrEmpty(html))
-            {
-                return null;
-            }
             try
             {
-                var match = Regex.Match(html, @"(?<=var song = )({[\s\S]+?})(?=,\s*totalTime)").Value;
-                if (string.IsNullOrEmpty(match))
+                var str = "songmid=" + id;
+                if (Regex.IsMatch(id, @"^\d+$"))
                 {
-                    match = Regex.Match(html, @"(?<=songlist=)(\[[\s\S]+?)(?=\s*}catch)").Value;
+                    str = "songid=" + id;
                 }
-                if (!match.StartsWith("["))
+                var url = "http://c.y.qq.com/v8/playsong.html?" + str;
+                var html = CommonHelper.GetHtmlContent(url, 2);
+                if (string.IsNullOrEmpty(html))
                 {
-                    match = "[" + match + "]";
+                    return null;
                 }
-                var datas = JToken.Parse(match.Trim());
-                var list = GetListByJson(datas);
-                return list?[0];
+                var j = JObject.Parse(Regex.Match(html, @"(?<=var song = )({[\s\S]+?})(?=,\s*totalTime)").Value);
+                var list = SearchAlbum(j["albummid"].ToString());
+                return list?.Songs.SingleOrDefault(t => t.SongId == j["songid"].ToString());
             }
             catch (Exception ex)
             {
