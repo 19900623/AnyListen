@@ -111,7 +111,7 @@ namespace AnyListen.Api.Music
                     TrackNum = j["belongCD"]?.ToString(),
                     Type = "qq"
                 };
-                var mid = j["songmid"].ToString();
+                var mid = j["strMediaMid"]?.ToString() ?? j["songmid"].ToString();
                 if (j["size128"].ToString() != "0")
                 {
                     song.BitRate = "128K";
